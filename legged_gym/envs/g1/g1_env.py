@@ -1,4 +1,3 @@
-
 from legged_gym.envs.base.legged_robot import LeggedRobot
 
 from isaacgym.torch_utils import *
@@ -28,7 +27,10 @@ class G1Robot(LeggedRobot):
         noise_vec[9+self.num_actions:9+2*self.num_actions] = noise_scales.dof_vel * noise_level * self.obs_scales.dof_vel
         noise_vec[9+2*self.num_actions:9+3*self.num_actions] = 0. # previous actions
         noise_vec[9+3*self.num_actions:9+3*self.num_actions+2] = 0. # sin/cos phase
-        
+        ##modify:
+        if self.cfg.terrain.measure_heights:
+            noise_vec[48:235] = noise_scales.height_measurements* noise_level * self.obs_scales.height_measurements
+        ##
         return noise_vec
 
     def _init_foot(self):
@@ -40,6 +42,7 @@ class G1Robot(LeggedRobot):
         self.feet_state = self.rigid_body_states_view[:, self.feet_indices, :]
         self.feet_pos = self.feet_state[:, :, :3]
         self.feet_vel = self.feet_state[:, :, 7:10]
+        # print("INIT:feet_pos: ", self.feet_pos)
         
     def _init_buffers(self):
         super()._init_buffers()
@@ -50,6 +53,7 @@ class G1Robot(LeggedRobot):
         
         self.feet_state = self.rigid_body_states_view[:, self.feet_indices, :]
         self.feet_pos = self.feet_state[:, :, :3]
+        # print("UPDATE:feet_pos: ", self.feet_pos)
         self.feet_vel = self.feet_state[:, :, 7:10]
         
     def _post_physics_step_callback(self):
@@ -68,6 +72,7 @@ class G1Robot(LeggedRobot):
     def compute_observations(self):
         """ Computes observations
         """
+        # print("pre obs cmp:self.obs_buf.shape=",self.obs_buf.shape)
         sin_phase = torch.sin(2 * np.pi * self.phase ).unsqueeze(1)
         cos_phase = torch.cos(2 * np.pi * self.phase ).unsqueeze(1)
         self.obs_buf = torch.cat((  self.base_ang_vel  * self.obs_scales.ang_vel,
@@ -79,6 +84,7 @@ class G1Robot(LeggedRobot):
                                     sin_phase,
                                     cos_phase
                                     ),dim=-1)
+        # print("in obs cmp:self.obs_buf.shape=",self.obs_buf.shape)
         self.privileged_obs_buf = torch.cat((  self.base_lin_vel * self.obs_scales.lin_vel,
                                     self.base_ang_vel  * self.obs_scales.ang_vel,
                                     self.projected_gravity,
@@ -90,9 +96,19 @@ class G1Robot(LeggedRobot):
                                     cos_phase
                                     ),dim=-1)
         # add perceptive inputs if not blind
+        if self.cfg.terrain.measure_heights:
+            heights = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.) * self.obs_scales.height_measurements
+            # print("heights.shape=",heights.shape)
+            self.obs_buf = torch.cat((self.obs_buf, heights), dim=-1)
+            self.privileged_obs_buf = torch.cat((self.privileged_obs_buf, heights), dim=-1)
+            # print("heights added:self.obs_buf.shape=",self.obs_buf.shape)
+            # print("heights added:self.privileged_obs_bu.shape=",self.privileged_obs_buf.shape)
         # add noise if needed
         if self.add_noise:
+            # print("add noise:self.obs_buf.shape=",self.obs_buf.shape)
+            # print("add noise:self.noise_scale_vec.shape=",self.noise_scale_vec.shape)
             self.obs_buf += (2 * torch.rand_like(self.obs_buf) - 1) * self.noise_scale_vec
+        # print("after cmp:self.obs_buf.shape=",self.obs_buf.shape)
 
         
     def _reward_contact(self):
@@ -105,12 +121,15 @@ class G1Robot(LeggedRobot):
     
     def _reward_feet_swing_height(self):
         contact = torch.norm(self.contact_forces[:, self.feet_indices, :3], dim=2) > 1.
-        pos_error = torch.square(self.feet_pos[:, :, 2] - 0.08) * ~contact
+        pos_error = torch.square(self.feet_pos[:, :, 2] - 0.12) * ~contact #my setting
+        # pos_error = torch.square(self.feet_pos[:, :, 2] - 0.08) * ~contact #default
         return torch.sum(pos_error, dim=(1))
     
     def _reward_alive(self):
         # Reward for staying alive
         return 1.0
+        #my rew:
+        # return 2.0
     
     def _reward_contact_no_vel(self):
         # Penalize contact with no velocity
@@ -122,3 +141,5 @@ class G1Robot(LeggedRobot):
     def _reward_hip_pos(self):
         return torch.sum(torch.square(self.dof_pos[:,[1,2,7,8]]), dim=1)
     
+
+

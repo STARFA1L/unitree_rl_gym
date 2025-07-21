@@ -20,8 +20,10 @@ class G1RoughCfg( LeggedRobotCfg ):
         }
     
     class env(LeggedRobotCfg.env):
-        num_observations = 47
-        num_privileged_obs = 50
+        # num_observations = 47
+        num_observations = 234
+        # num_privileged_obs = 50
+        num_privileged_obs = 237
         num_actions = 12
 
 
@@ -78,7 +80,7 @@ class G1RoughCfg( LeggedRobotCfg ):
             base_height = -10.0
             dof_acc = -2.5e-7
             dof_vel = -1e-3
-            feet_air_time = 0.0
+            feet_air_time = 1.0 #(my setting) #0.0(default setting)
             collision = 0.0
             action_rate = -0.01
             dof_pos_limits = -5.0

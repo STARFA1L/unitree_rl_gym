@@ -1,9 +1,13 @@
 from .base_config import BaseConfig
 
+##
+from typing import Dict, Tuple, List
+
 class LeggedRobotCfg(BaseConfig):
     class env:
         num_envs = 4096
-        num_observations = 48
+        # num_observations = 48
+        num_observations = 235 # using extended obs
         num_privileged_obs = None # if not None a priviledge_obs_buf will be returned by step() (critic obs for assymetric training). None is returned otherwise 
         num_actions = 12
         env_spacing = 3.  # not used with heightfields/trimeshes 
@@ -13,6 +17,7 @@ class LeggedRobotCfg(BaseConfig):
 
     class terrain:
         mesh_type = 'plane' # "heightfield" # none, plane, heightfield or trimesh
+        # mesh_type = 'trimesh'
         horizontal_scale = 0.1 # [m]
         vertical_scale = 0.005 # [m]
         border_size = 25 # [m]
@@ -26,15 +31,28 @@ class LeggedRobotCfg(BaseConfig):
         measured_points_y = [-0.5, -0.4, -0.3, -0.2, -0.1, 0., 0.1, 0.2, 0.3, 0.4, 0.5]
         selected = False # select a unique terrain type and pass all arguments
         terrain_kwargs = None # Dict of arguments for selected terrain
+        # selected = True
+        # terrain_kwargs ={'type':'random_uniform_terrain', 'min_height':-0.05, 'max_height':0.05, 'step':0.005, 'downsampled_scale':0.2}#{'type':'pyramid_sloped_terrain', 'slope':0.20, 'platform_size':3.}#{'type':'rough_sloped_terrain', 'slope':0.20, 'platform_size':3.} #{'type':'wave_terrain', 'num_waves':15, 'amplitude':0.05}
         max_init_terrain_level = 5 # starting curriculum state
         terrain_length = 8.
         terrain_width = 8.
-        num_rows= 10 # number of terrain rows (levels)
+        num_rows = 10 # number of terrain rows (levels)
         num_cols = 20 # number of terrain cols (types)
+        # num_rows = 50 # more terrain levels(delta diffculty=0.05)
+        # num_cols = 20 # more terrain places
         # terrain types: [smooth slope, rough slope, stairs up, stairs down, discrete]
         terrain_proportions = [0.1, 0.1, 0.35, 0.25, 0.2]
+        # terrain_proportions = [1.0, 1.0, 0.0, 0.0, 0.0]
         # trimesh only:
         slope_treshold = 0.75 # slopes above this threshold will be corrected to vertical surfaces
+
+        ##debug use:
+        # dump = False
+        # rebuild = False
+        # terrain_dict: Dict[Tuple[int, int], List[float]] = {}
+        # terrain_config_path = None
+
+        
 
     class commands:
         curriculum = False
@@ -42,11 +60,17 @@ class LeggedRobotCfg(BaseConfig):
         num_commands = 4 # default: lin_vel_x, lin_vel_y, ang_vel_yaw, heading (in heading mode ang_vel_yaw is recomputed from heading error)
         resampling_time = 10. # time before command are changed[s]
         heading_command = True # if true: compute ang vel command from heading error
+        # heading_command = False
         class ranges:
             lin_vel_x = [-1.0, 1.0] # min max [m/s]
             lin_vel_y = [-1.0, 1.0]   # min max [m/s]
             ang_vel_yaw = [-1, 1]    # min max [rad/s]
             heading = [-3.14, 3.14]
+            ## going straight,may cause one leg walking.
+            # lin_vel_x = [0.1, 1.0] # min max [m/s]
+            # lin_vel_y = [0.0, 0.0]   # min max [m/s]
+            # ang_vel_yaw = [0, 0]    # min max [rad/s]
+            # heading = [0, 0]
 
     class init_state:
         pos = [0.0, 0.0, 1.] # x,y,z [m]
@@ -81,7 +105,7 @@ class LeggedRobotCfg(BaseConfig):
         replace_cylinder_with_capsule = True # replace collision cylinders with capsules, leads to faster/more stable simulation
         flip_visual_attachments = True # Some .obj meshes must be flipped from y-up to z-up
         
-        density = 0.001
+        density = 0.001e
         angular_damping = 0.
         linear_damping = 0.
         max_angular_velocity = 1000.
