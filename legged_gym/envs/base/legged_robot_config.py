@@ -105,7 +105,7 @@ class LeggedRobotCfg(BaseConfig):
         replace_cylinder_with_capsule = True # replace collision cylinders with capsules, leads to faster/more stable simulation
         flip_visual_attachments = True # Some .obj meshes must be flipped from y-up to z-up
         
-        density = 0.001e
+        density = 0.001
         angular_damping = 0.
         linear_damping = 0.
         max_angular_velocity = 1000.

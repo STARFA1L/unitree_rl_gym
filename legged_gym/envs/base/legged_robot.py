@@ -20,6 +20,8 @@ from legged_gym.utils.isaacgym_utils import get_euler_xyz as get_euler_xyz_in_te
 from legged_gym.utils.helpers import class_to_dict
 from .legged_robot_config import LeggedRobotCfg
 
+from legged_gym.utils.debugger import Debugger
+
 class LeggedRobot(BaseTask):
     def __init__(self, cfg: LeggedRobotCfg, sim_params, physics_engine, sim_device, headless):
         """ Parses the provided config file,
@@ -59,10 +61,14 @@ class LeggedRobot(BaseTask):
 
         clip_actions = self.cfg.normalization.clip_actions
         self.actions = torch.clip(actions, -clip_actions, clip_actions).to(self.device)
+        # print("====================================\n","actions.shape:", self.actions.shape)
+        # print("actions:", self.actions,"\n====================================\n")
+        # Debugger.dprint(Debugger(),"legged_robot.py", "step", "actions.shape:", self.actions.shape,"\nactions:", self.actions)
         # step physics and render each frame
         self.render()
         for _ in range(self.cfg.control.decimation):
             self.torques = self._compute_torques(self.actions).view(self.torques.shape)
+            # Debugger.dprint(Debugger(), "legged_robot.py", "step", "self.torques.shape:", self.torques.shape, "\nself.torques:", self.torques)
             self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(self.torques))
             self.gym.simulate(self.sim)
             if self.cfg.env.test:
@@ -297,10 +303,12 @@ class LeggedRobot(BaseTask):
         Returns:
             [numpy.array]: Modified DOF properties
         """
+        # Debugger.dprint(Debugger(), "legged_robot.py", "_process_dof_props", "env_id:", env_id)
         if env_id==0:
             self.dof_pos_limits = torch.zeros(self.num_dof, 2, dtype=torch.float, device=self.device, requires_grad=False)
             self.dof_vel_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
             self.torque_limits = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
+            # Debugger.dprint(Debugger(), "legged_robot.py", "_process_dof_props", "self.torque_limits.shape:", self.torque_limits.shape, "self.torque_limits:", self.torque_limits)
             for i in range(len(props)):
                 self.dof_pos_limits[i, 0] = props["lower"][i].item()
                 self.dof_pos_limits[i, 1] = props["upper"][i].item()
@@ -377,6 +385,12 @@ class LeggedRobot(BaseTask):
         actions_scaled = actions * self.cfg.control.action_scale
         control_type = self.cfg.control.control_type
         if control_type=="P":
+            # print("Into legged_robot._compute_torques, control_type is P.\n")
+            # print("self.p_gains.shape:", self.p_gains.shape)
+            # print("self.d_gains.shape:", self.d_gains.shape)
+            # print("self.default_dof_pos.shape:", self.default_dof_pos.shape)
+            # print("self.dof_pos.shape:", self.dof_pos.shape)
+            # print("self.dof_vel.shape:", self.dof_vel.shape)
             torques = self.p_gains*(actions_scaled + self.default_dof_pos - self.dof_pos) - self.d_gains*self.dof_vel
         elif control_type=="V":
             torques = self.p_gains*(actions_scaled - self.dof_vel) - self.d_gains*(self.dof_vel - self.last_dof_vel)/self.sim_params.dt
@@ -618,8 +632,11 @@ class LeggedRobot(BaseTask):
 
         # joint positions offsets and PD gains
         self.default_dof_pos = torch.zeros(self.num_dof, dtype=torch.float, device=self.device, requires_grad=False)
+        # print("LeggedRobot._init_buffers: self.default_dof_pos.shape:", self.default_dof_pos.shape)
+        # print("LeggedRobot._init_buffers: self.dof_names:", self.dof_names)
         for i in range(self.num_dofs):
             name = self.dof_names[i]
+            # print(f"LeggedRobot._init_buffers: name: {name}, i: {i}")
             angle = self.cfg.init_state.default_joint_angles[name]
             self.default_dof_pos[i] = angle
             found = False
@@ -740,7 +757,7 @@ class LeggedRobot(BaseTask):
         asset_options.disable_gravity = self.cfg.asset.disable_gravity
 
         robot_asset = self.gym.load_asset(self.sim, asset_root, asset_file, asset_options)
-        self.num_dof = self.gym.get_asset_dof_count(robot_asset)
+        self.num_dof = self.gym.get_asset_dof_count(robot_asset)# num_dof 是gym中获取的urdf的自由度
         self.num_bodies = self.gym.get_asset_rigid_body_count(robot_asset)
         dof_props_asset = self.gym.get_asset_dof_properties(robot_asset)
         rigid_shape_props_asset = self.gym.get_asset_rigid_shape_properties(robot_asset)
@@ -749,7 +766,7 @@ class LeggedRobot(BaseTask):
         body_names = self.gym.get_asset_rigid_body_names(robot_asset)
         self.dof_names = self.gym.get_asset_dof_names(robot_asset)
         self.num_bodies = len(body_names)
-        self.num_dofs = len(self.dof_names)
+        self.num_dofs = len(self.dof_names)# num_dofs 是gym中获取的urdf的自由度名字的数量
         feet_names = [s for s in body_names if self.cfg.asset.foot_name in s]
         penalized_contact_names = []
         for name in self.cfg.asset.penalize_contacts_on:
