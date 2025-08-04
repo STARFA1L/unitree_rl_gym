@@ -17,39 +17,56 @@ class G1RoughCfg_Masked( LeggedRobotCfg ):
            'right_knee_joint' : 0.3,                                             
            'right_ankle_pitch_joint': -0.2,                              
            'right_ankle_roll_joint' : 0,       
-           'torso_joint' : 0.
+        #    'torso_joint' : 0.
+           'waist_yaw_joint' : 0.0,
+           'waist_roll_joint' : 0.0,
+           'waist_pitch_joint' : 0.0,
+           'left_shoulder_pitch_joint' : 0.0,
+           'left_shoulder_roll_joint' : 0.0,
+           'left_shoulder_yaw_joint' : 0.0,
+           'left_elbow_joint' : 0.0,
+           'left_wrist_roll_joint' : 0.0,
+           'left_wrist_pitch_joint' : 0.0,
+           'left_wrist_yaw_joint' : 0.0,
+           'right_shoulder_pitch_joint' : 0.0,
+           'right_shoulder_roll_joint' : 0.0,
+           'right_shoulder_yaw_joint' : 0.0,
+           'right_elbow_joint' : 0.0,
+           'right_wrist_roll_joint' : 0.0,
+           'right_wrist_pitch_joint' : 0.0,
+           'right_wrist_yaw_joint' : 0.0
         }
 
-        # name: left_hip_pitch_joint, i: 0
-        # name: left_hip_roll_joint, i: 1
-        # name: left_hip_yaw_joint, i: 2
-        # name: left_knee_joint, i: 3
-        # name: left_ankle_pitch_joint, i: 4
-        # name: left_ankle_roll_joint, i: 5
-        # name: right_hip_pitch_joint, i: 6
-        # name: right_hip_roll_joint, i: 7
-        # name: right_hip_yaw_joint, i: 8
-        # name: right_knee_joint, i: 9
-        # name: right_ankle_pitch_joint, i: 10
-        # name: right_ankle_roll_joint, i: 11
-        # name: waist_yaw_joint, i: 12
-        # name: waist_roll_joint, i: 13
-        # name: waist_pitch_joint, i: 14
-        # name: left_shoulder_pitch_joint, i: 15
-        # name: left_shoulder_roll_joint, i: 16
-        # name: left_shoulder_yaw_joint, i: 17
-        # name: left_elbow_joint, i: 18
-        # name: left_wrist_roll_joint, i: 19
-        # name: left_wrist_pitch_joint, i: 20
-        # name: left_wrist_yaw_joint, i: 21
-        # name: right_shoulder_pitch_joint, i: 22
-        # name: right_shoulder_roll_joint, i: 23
-        # name: right_shoulder_yaw_joint, i: 24
-        # name: right_elbow_joint, i: 25
-        # name: right_wrist_roll_joint, i: 26
-        # name: right_wrist_pitch_joint, i: 27
-        # name: right_wrist_yaw_joint, i: 28    
-    
+        # name: left_hip_pitch_joint, i: 0, kps:100, kds:2.5
+        # name: left_hip_roll_joint, i: 1, kps:100, kds:2.5
+        # name: left_hip_yaw_joint, i: 2, kps:100, kds:2.5
+        # name: left_knee_joint, i: 3, kps:200, kds:5.0
+        # name: left_ankle_pitch_joint, i: 4, kps:20, kds:0.2
+        # name: left_ankle_roll_joint, i: 5, kps:20, kds:0.1
+        # name: right_hip_pitch_joint, i: 6, kps:100, kds:2.5
+        # name: right_hip_roll_joint, i: 7, kps:100, kds:2.5
+        # name: right_hip_yaw_joint, i: 8, kps:100, kds:2.5
+        # name: right_knee_joint, i: 9, kps:200, kds:5.0
+        # name: right_ankle_pitch_joint, i: 10, kps:20, kds:0.2
+        # name: right_ankle_roll_joint, i: 11, kps:20, kds:0.1
+        # name: waist_yaw_joint, i: 12, kps:400, kds:5.0
+        # name: waist_roll_joint, i: 13, kps:400, kds:5.0
+        # name: waist_pitch_joint, i: 14, kps:400, kds:5.0
+        # name: left_shoulder_pitch_joint, i: 15, kps:90, kds:2.0
+        # name: left_shoulder_roll_joint, i: 16, kps:60, kds:1.0
+        # name: left_shoulder_yaw_joint, i: 17, kps:20, kds:0.4
+        # name: left_elbow_joint, i: 18, kps:60, kds:1.0
+        # name: left_wrist_roll_joint, i: 19, kps:20, kds:0.4
+        # name: left_wrist_pitch_joint, i: 20, kps:20, kds:0.4
+        # name: left_wrist_yaw_joint, i: 21, kps:20, kds:0.4
+        # name: right_shoulder_pitch_joint, i: 22, kps:90, kds:2.0
+        # name: right_shoulder_roll_joint, i: 23, kps:60, kds:1.0
+        # name: right_shoulder_yaw_joint, i: 24, kps:20, kds:0.4
+        # name: right_elbow_joint, i: 25, kps:60, kds:1.0
+        # name: right_wrist_roll_joint, i: 26, kps:20, kds:0.4
+        # name: right_wrist_pitch_joint, i: 27, kps:20, kds:0.4
+        # name: right_wrist_yaw_joint, i: 28, kps:20, kds:0.4
+
     class masked_dof():
         name = [
         'waist_yaw_joint',
@@ -73,6 +90,25 @@ class G1RoughCfg_Masked( LeggedRobotCfg ):
         id = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
         num= 17
         # default_angle = [0.0, 0.0, -0.1, 0.3, -0.2, 0.0, 0.0, 0.0, -0.1, 0.3, -0.2, 0.0, 0.0]
+        default_torques = [
+            0.0,
+            0.0,
+            -10.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
 
 
     class unmask_dof():
@@ -118,17 +154,37 @@ class G1RoughCfg_Masked( LeggedRobotCfg ):
         # PD Drive parameters:
         control_type = 'P'
           # PD Drive parameters:
-        stiffness = {'hip_yaw': 100,
+        stiffness = {'hip_pitch': 100,
                      'hip_roll': 100,
-                     'hip_pitch': 100,
+                     'hip_yaw': 100,
                      'knee': 150,
                      'ankle': 40,
+                     'waist_yaw': 400,
+                     'waist_roll': 400,
+                     'waist_pitch': 400,
+                     'shoulder_pitch': 90,
+                     'shoulder_roll': 60,
+                     'shoulder_yaw': 20,
+                     'elbow': 60,
+                     'wrist_roll': 20,
+                     'wrist_pitch': 20,
+                     'wrist_yaw': 20,
                      }  # [N*m/rad]
-        damping = {  'hip_yaw': 2,
+        damping = {  'hip_pitch': 2,
                      'hip_roll': 2,
-                     'hip_pitch': 2,
+                     'hip_yaw': 2,
                      'knee': 4,
                      'ankle': 2,
+                     'waist_yaw': 5,
+                     'waist_roll': 5,
+                     'waist_pitch': 5,
+                     'shoulder_pitch': 2,
+                     'shoulder_roll': 1,
+                     'shoulder_yaw': 0.4,
+                     'elbow': 1,
+                     'wrist_roll': 0.4,
+                     'wrist_pitch': 0.4,
+                     'wrist_yaw': 0.4,
                      }  # [N*m/rad]  # [N*m*s/rad]
         # action scale: target angle = actionScale * action + defaultAngle
         action_scale = 0.25

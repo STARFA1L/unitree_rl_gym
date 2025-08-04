@@ -97,9 +97,11 @@ from legged_gym.utils import  get_args, export_policy_as_jit, task_registry, Log
 
 import numpy as np
 import torch
+from legged_gym.utils.debugger import Debugger
 
 
 def play(args):
+    de=Debugger()
     env_cfg, train_cfg = task_registry.get_cfgs(name=args.task)
     # override some parameters for testing
     env_cfg.env.num_envs = min(env_cfg.env.num_envs, 100)
@@ -128,6 +130,8 @@ def play(args):
 
     for i in range(10*int(env.max_episode_length)):
         actions = policy(obs.detach())
+        # de.dprint("play.py","play","actions.shape:",actions.shape,"\nactions")
+        
         obs, _, rews, dones, infos = env.step(actions.detach())
 
 if __name__ == '__main__':

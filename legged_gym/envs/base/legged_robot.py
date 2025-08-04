@@ -636,7 +636,7 @@ class LeggedRobot(BaseTask):
         # print("LeggedRobot._init_buffers: self.dof_names:", self.dof_names)
         for i in range(self.num_dofs):
             name = self.dof_names[i]
-            # print(f"LeggedRobot._init_buffers: name: {name}, i: {i}")
+            print(f"LeggedRobot._init_buffers: name: {name}, i: {i}")
             angle = self.cfg.init_state.default_joint_angles[name]
             self.default_dof_pos[i] = angle
             found = False

@@ -1,5 +1,5 @@
 class Debugger:
-    def dprint(self, file_name, func_name, *args, **kwargs):
+    def dprint(self,file_name, func_name, *args, **kwargs):
         """
         调试打印函数，格式化输出调试信息
         
